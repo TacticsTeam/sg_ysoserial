@@ -8,7 +8,6 @@
 	<packaging>jar</packaging>
 
 	<name>ysoserial</name>
-	<url>https://github.com/frohoff/ysoserial/</url>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -321,7 +320,24 @@
 			<artifactId>vaadin-server</artifactId>
 			<version>7.7.14</version>
 		</dependency>
-	</dependencies>
+
+        <dependency>
+            <groupId>com.oracle.weblogic</groupId>
+            <artifactId>wlfullclient</artifactId>
+            <version>10.3</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/libs/wlfullclient.jar</systemPath>
+        </dependency>
+
+        <dependency>
+            <groupId>com.tangosol</groupId>
+            <artifactId>coherence</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/libs/coherence.jar</systemPath>
+        </dependency>
+
+    </dependencies>
 
 	<profiles>
         <profile>
@@ -351,6 +367,10 @@
                 <repository>
                     <id>repo1</id>
                     <url>http://repo1.maven.org/maven2</url>
+                </repository>
+                <repository>
+                    <id>maven repo</id>
+                    <url>http://mvnrepository.com/artifact/</url>
                 </repository>
             </repositories>
             <pluginRepositories>

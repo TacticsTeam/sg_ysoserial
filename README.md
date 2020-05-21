@@ -1,11 +1,7 @@
-
 # ysoserial
 
-[![Join the chat at https://gitter.im/frohoff/ysoserial](
-    https://badges.gitter.im/frohoff/ysoserial.svg)](
-    https://gitter.im/frohoff/ysoserial?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Download Latest Snapshot](https://img.shields.io/badge/download-master-green.svg)](
-    https://jitpack.io/com/github/frohoff/ysoserial/master-SNAPSHOT/ysoserial-master-SNAPSHOT.jar)
+[![Join the chat at https://gitter.im/frohoff/ysoserial](https://badges.gitter.im/frohoff/ysoserial.svg)](https://gitter.im/frohoff/ysoserial?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Download Latest Snapshot](https://img.shields.io/badge/download-master-green.svg)](https://jitpack.io/com/github/frohoff/ysoserial/master-SNAPSHOT/ysoserial-master-SNAPSHOT.jar)
 [![Travis Build Status](https://api.travis-ci.org/frohoff/ysoserial.svg?branch=master)](https://travis-ci.org/frohoff/ysoserial)
 [![Appveyor Build status](https://ci.appveyor.com/api/projects/status/a8tbk9blgr3yut4g/branch/master?svg=true)](https://ci.appveyor.com/project/frohoff/ysoserial/branch/master)
 
@@ -16,14 +12,13 @@ A proof-of-concept tool for generating payloads that exploit unsafe Java object 
 ## Description
 
 Originally released as part of AppSecCali 2015 Talk
-["Marshalling Pickles: how deserializing objects will ruin your day"](
-        http://frohoff.github.io/appseccali-marshalling-pickles/)
+["Marshalling Pickles: how deserializing objects will ruin your day"](http://frohoff.github.io/appseccali-marshalling-pickles/)
 with gadget chains for Apache Commons Collections (3.x and 4.x), Spring Beans/Core (4.x), and Groovy (2.3.x).
 Later updated to include additional gadget chains for
 [JRE <= 1.7u21](https://gist.github.com/frohoff/24af7913611f8406eaf3) and several other libraries.
 
-__ysoserial__ is a collection of utilities and property-oriented programming "gadget chains" discovered in common java
-libraries that can, under the right conditions, exploit Java applications performing __unsafe deserialization__ of
+**ysoserial** is a collection of utilities and property-oriented programming "gadget chains" discovered in common java
+libraries that can, under the right conditions, exploit Java applications performing **unsafe deserialization** of
 objects. The main driver program takes a user-specified command and wraps it in the user-specified gadget chain, then
 serializes these objects to stdout. When an application with the required gadgets on the classpath unsafely deserializes
 this data, the chain will automatically be invoked and cause the command to be executed on the application host.
@@ -99,24 +94,17 @@ $ java -cp ysoserial.jar ysoserial.exploit.RMIRegistryExploit myhost 1099 Common
 ## Installation
 
 1. Download the latest jar from
-[JitPack](https://jitpack.io/com/github/frohoff/ysoserial/master-SNAPSHOT/ysoserial-master-SNAPSHOT.jar)
-[![Download Latest Snapshot](https://img.shields.io/badge/download-master-green.svg)](
-    https://jitpack.io/com/github/frohoff/ysoserial/master-SNAPSHOT/ysoserial-master-SNAPSHOT.jar)
+   [JitPack](https://jitpack.io/com/github/frohoff/ysoserial/master-SNAPSHOT/ysoserial-master-SNAPSHOT.jar)
+   [![Download Latest Snapshot](https://img.shields.io/badge/download-master-green.svg)](https://jitpack.io/com/github/frohoff/ysoserial/master-SNAPSHOT/ysoserial-master-SNAPSHOT.jar)
 
 Note that GitHub-hosted releases were removed in compliance with the
-[GitHub Community Guidelines](
-    https://help.github.com/articles/github-community-guidelines/#what-is-not-allowed)
+[GitHub Community Guidelines](https://help.github.com/articles/github-community-guidelines/#what-is-not-allowed)
 
 ## Building
 
 Requires Java 1.7+ and Maven 3.x+
 
-```mvn clean package -DskipTests```
-
-## Code Status
-
-[![Build Status](https://travis-ci.org/frohoff/ysoserial.svg?branch=master)](https://travis-ci.org/frohoff/ysoserial)
-[![Build status](https://ci.appveyor.com/api/projects/status/a8tbk9blgr3yut4g/branch/master?svg=true)](https://ci.appveyor.com/project/frohoff/ysoserial/branch/master)
+`mvn clean package -DskipTests`
 
 ## Contributing
 
@@ -127,6 +115,13 @@ Requires Java 1.7+ and Maven 3.x+
 5. Create new Pull Request
 
 ## See Also
-* [Java-Deserialization-Cheat-Sheet](https://github.com/GrrrDog/Java-Deserialization-Cheat-Sheet): info on vulnerabilities, tools, blogs/write-ups, etc.
-* [marshalsec](https://github.com/frohoff/marshalsec): similar project for various Java deserialization formats/libraries
-* [ysoserial.net](https://github.com/pwntester/ysoserial.net): similar project for .NET deserialization
+
+-   [Java-Deserialization-Cheat-Sheet](https://github.com/GrrrDog/Java-Deserialization-Cheat-Sheet): info on vulnerabilities, tools, blogs/write-ups, etc.
+-   [marshalsec](https://github.com/frohoff/marshalsec): similar project for various Java deserialization formats/libraries
+-   [ysoserial.net](https://github.com/pwntester/ysoserial.net): similar project for .NET deserialization
+
+## Thanks
+
+[ysomap](https://github.com/wh1t3p1g/ysomap)
+[ysoserial1](http://github.com/threedr3am/ysoserial/)
+[ysoserial2](http://github.com/buptchk/ysoserial)
