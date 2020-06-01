@@ -1,15 +1,10 @@
 package ysoserial.payloads;
 
-import java.lang.reflect.InvocationHandler;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.commons.collections.Transformer;
 import org.apache.commons.collections.functors.ChainedTransformer;
 import org.apache.commons.collections.functors.ConstantTransformer;
 import org.apache.commons.collections.functors.InvokerTransformer;
 import org.apache.commons.collections.map.LazyMap;
-
 import ysoserial.payloads.annotation.Authors;
 import ysoserial.payloads.annotation.Dependencies;
 import ysoserial.payloads.annotation.PayloadTest;
@@ -17,6 +12,10 @@ import ysoserial.payloads.util.Gadgets;
 import ysoserial.payloads.util.JavaVersion;
 import ysoserial.payloads.util.PayloadRunner;
 import ysoserial.payloads.util.Reflections;
+
+import java.lang.reflect.InvocationHandler;
+import java.util.HashMap;
+import java.util.Map;
 
 /*
 	Gadget chain:

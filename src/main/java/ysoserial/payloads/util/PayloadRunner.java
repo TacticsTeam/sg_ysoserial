@@ -1,14 +1,13 @@
 package ysoserial.payloads.util;
 
-import java.util.concurrent.Callable;
 
 import ysoserial.Deserializer;
 import ysoserial.Serializer;
-import static ysoserial.Deserializer.deserialize;
-import static ysoserial.Serializer.serialize;
 import ysoserial.payloads.ObjectPayload;
 import ysoserial.payloads.ObjectPayload.Utils;
 import ysoserial.secmgr.ExecCheckingSecurityManager;
+
+import java.util.concurrent.Callable;
 
 /*
  * utility class for running exploits locally from command line
@@ -20,6 +19,7 @@ public class PayloadRunner {
 		// ensure payload generation doesn't throw an exception
 		byte[] serialized = new ExecCheckingSecurityManager().callWrapped(new Callable<byte[]>(){
 			public byte[] call() throws Exception {
+
 				final String command = args.length > 0 && args[0] != null ? args[0] : getDefaultTestCmd();
 
 				System.out.println("generating payload object(s) for command: '" + command + "'");
@@ -52,7 +52,7 @@ public class PayloadRunner {
     }
 
     private static String getFirstExistingFile(String ... files) {
-        return "calc.exe";
+        return "/System/Applications/Calculator.app/Contents/MacOS/Calculator";
 //        for (String path : files) {
 //            if (new File(path).exists()) {
 //                return path;
